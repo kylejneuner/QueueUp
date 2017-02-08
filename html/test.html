@@ -1,0 +1,42 @@
+<html>
+  <head>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+    <script type = "text/javascript">
+function myAjax () {
+    var url = window.location.href;
+    alert(url);
+    var name = "roomnumber";
+    name = name.replace(/[\[\]]/g, "\\$&");
+    alert(name);
+    var regex = new RegExp("[?&]" + "roomnumber" + "(=([^&#]*)|&|#|$)"),
+    results = regex.exec(url);
+    results = decodeURIComponent(results[2].replace(/\+/g, " "));
+
+        //var roomNum = document.getElementById('roomTest').value
+        var values = {
+              'room'       : results
+      };
+$.ajax( { type : 'POST',
+          data : values,
+          url  : 'checkID.php',              // <=== CALL THE PHP FUNCTION HERE.
+          success: function ( data ) {
+            alert( data );               // <=== VALUE RETURNED FROM FUNCTION.
+            var idData = JSON.parse(data);
+            if(idData.isRoom==1){
+              alert("Room exists");
+            }
+            alert(idData.isRoom);
+          },
+          error: function ( xhr ) {
+            alert( "error" );
+          }
+        });
+}
+    </script>
+  </head>
+  <body>
+    <input type="text" id="roomTest">
+    <button onclick="myAjax()">Click here</button> <!-- BUTTON CALL PHP FUNCTION -->
+    <h1>Room Code: <div id="roomID"></div></h1>
+  </body>
+</html>

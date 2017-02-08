@@ -8,18 +8,17 @@
   $url = preg_replace('/\?.*$/', '', $_SERVER['REQUEST_URI']);
   $folderpath = 'http://'.$_SERVER['HTTP_HOST'].'/'.ltrim(dirname($url), '/').'/';
 
-  $songid=$_REQUEST['songid'];
-	$roomid=$_REQUEST['roomid'];
+  $songid=1234;
+  $roomid=1234;
 
-	$flag['code']=0;
+//	$flag['code']=0;
+  //$result = mysql_query("SELECT room_id FROM users WHERE room_id = $roomid");
 
-  $addsong = mysql_query("INSERT INTO songs (songid,roomid) VALUES(\"$songid\",\"$roomid\")") or die(mysql_error());
-	{
-		$flag['code']=1;
-		echo"hi";
-	}
+//  if(mysql_num_rows($result)!=0) {
+    $addsong = mysql_query("INSERT INTO songs (songid,roomid) VALUES(\"$songid\",\"$roomid\")") or die(mysql_error());
 
-	print(json_encode($flag));
+    //print(json_encode($flag));
 
+//}
 
 ?>
