@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">QueueUp</string>
+    <string name="title_activity_create_room">createRoom</string>
+    <string name="title_activity_main_room">MainRoom</string>
 </resources>

@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 
 import com.spotify.sdk.android.authentication.AuthenticationClient;
 import com.spotify.sdk.android.authentication.AuthenticationRequest;
@@ -16,7 +18,7 @@ import com.spotify.sdk.android.player.PlayerEvent;
 import com.spotify.sdk.android.player.Spotify;
 import com.spotify.sdk.android.player.SpotifyPlayer;
 
-public class CreateRoom extends AppCompatActivity implements SpotifyPlayer.NotificationCallback, ConnectionStateCallback{
+public class LogOn extends AppCompatActivity implements SpotifyPlayer.NotificationCallback, ConnectionStateCallback{
 
     // TODO: Replace with your client ID
     private static final String CLIENT_ID = "d6e28e8ad47847239eaeb2916a7772cd";
@@ -24,7 +26,7 @@ public class CreateRoom extends AppCompatActivity implements SpotifyPlayer.Notif
     private static final String REDIRECT_URI = "queueup://callback";
 
 
-    private Player qPlayer;
+    private static SpotifyPlayer qPlayer;
 
 
     // Request code that will be used to verify if the result comes from correct activity
@@ -35,7 +37,7 @@ public class CreateRoom extends AppCompatActivity implements SpotifyPlayer.Notif
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_create_room);
+        setContentView(R.layout.activity_log_on);
 
 
         AuthenticationRequest.Builder builder = new AuthenticationRequest.Builder(CLIENT_ID,
@@ -44,6 +46,24 @@ public class CreateRoom extends AppCompatActivity implements SpotifyPlayer.Notif
         builder.setScopes(new String[]{"user-read-private", "streaming"});
         AuthenticationRequest request = builder.build();
         AuthenticationClient.openLoginActivity(this, REQUEST_CODE, request);
+
+
+        Button createRoom = (Button) findViewById(R.id.create_room_button);
+        createRoom.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // TODO: Link button press with php so you enter a unique room
+                Log.d("LogOn", "create room button pressed");
+                Intent enterRoom = new Intent(LogOn.this, MainRoom.class);
+                startActivity(enterRoom);
+
+
+            }
+        });
+
+
+
+
     }
 
     @Override
@@ -59,8 +79,8 @@ public class CreateRoom extends AppCompatActivity implements SpotifyPlayer.Notif
                     @Override
                     public void onInitialized(SpotifyPlayer spotifyPlayer) {
                         qPlayer = spotifyPlayer;
-                        qPlayer.addConnectionStateCallback(CreateRoom.this);
-                        qPlayer.addNotificationCallback(CreateRoom.this);
+                        qPlayer.addConnectionStateCallback(LogOn.this);
+                        qPlayer.addNotificationCallback(LogOn.this);
                     }
 
                     @Override
@@ -83,7 +103,9 @@ public class CreateRoom extends AppCompatActivity implements SpotifyPlayer.Notif
     public void onLoggedIn() {
         Log.d("MainActivity", "User logged in");
 
-        qPlayer.playUri(null, "spotify:track:3n3Ppam7vgaVa1iaRUc9Lp", 0, 0);
+        //sPlayer.playUri(null, "spotify:track:3n3Ppam7vgaVa1iaRUc9Lp", 0, 0);
+//        Intent intent = new Intent(this, createRoom.class);
+//        startActivity(intent);
     }
 
 
@@ -127,4 +149,10 @@ public class CreateRoom extends AppCompatActivity implements SpotifyPlayer.Notif
                 break;
         }
     }
+
+    public static SpotifyPlayer getPlayer(){
+        return qPlayer;
+    }
+
+
 }
