@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<title>QueueUp: Let your friends join the party!"</title>
+<link rel="stylesheet" href="styles.css">
+<style>
+	input {
+		font-family: verdana;
+		font-weight: bold;
+	}
+</style>
+
+<script>
+	function checkRoom() {
+		var code = document.getElementById('code').value;
+		if (code.length < 5) 
+			alert("Code is too short. Must be 5 characters long!");
+		else return true;
+		return false;
+	}
+</script>
+
+<body>
+	<div align="center">
+		<a href="about.html"><img src="images/trivago_logo.png" title="QueueUp"
+		alt="QueueUp Logo" width="300px" height="150px" border="2px solid gray"></img></a>
+		
+		<p></p>
+
+		<form onSubmit="return checkRoom()" method="get" action="spotify.php">
+			<strong style="color:#4286f4; background-color:#e2edff; border-radius:5px; padding:3px">Room Code:</strong>
+			<input type="text" name="roomcode" width="500px" id="code" maxlength="5" style="text-transform:uppercase" size="40"
+			placeholder="Enter the room code" autofocus>
+			<input type="submit" value="Join Room">
+		</form>
+		
+		<a href="about.html" title="What is QueueUp?"><small>What is QueueUp?</small></a>
+	</div>
+</body>
+</html>
