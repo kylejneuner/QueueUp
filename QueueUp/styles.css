@@ -1,36 +1,86 @@
-body, .searchRow, th {
-	background-color:#c6e7ff;
+* {
+    box-sizing: border-box;
 }
+
+body {
+	background-color:#c6e7ff;
+	margin: 0;
+	padding: 0;
+}
+
+#code {
+	width: 480px;
+	text-transform:uppercase;
+}
+
+div {
+	vertical-align: center;
+}
+
+.item_link {
+	display: block;
+	text-decoration: none;
+	font-size: 15px;
+	font-weight: 300;
+	color: #444444;
+}
+
+.logo_img {
+	width: 300px;
+	height: auto;
+}
+
+.normalList {
+	width: 500px;
+	text-align: center;
+	margin: 0 auto;
+}
+
+.playlistItem {
+	list-style-type: none;
+	background: linear-gradient(#eeeeee, #dddddd);
+}
+
+.searchList {
+	padding: 0 20px 0 20px;
+}
+
+.searchListItem {
+	padding:4px 10px;
+	list-style-type: none;
+	background: linear-gradient(#ffeeff, #ccbbff);
+	color: #333333;
+	text-align: left;
+}
+.searchListItem:hover {
+	background: linear-gradient(#ffffff, #ffffcc);
+}
+
+.songTitle {
+	font-size: 20px;
+	font-weight: 300;
+	color: black;
+}
+
 strong {
 	color: powderblue;
 }
 
-div {
-	align: center;
+@media only screen and (max-device-width: 520px), (max-width: 520px){
+	.normalList {
+		width: 100%;
+	}
+	.length {
+		display:none;
+	}
+	#code {
+		width: 100%;
+	}
+	.logo_img {
+		max-width: 100%;
+	}
+	.searchInput {
+		width: 90%;
+	}
 }
 
-table{
-	border-collapse:collapse;
-}
-td {
-	padding-right:8px;
-	padding-left:3px;
-	text-align:left;
-}
-tr.hover {
-	background: linear-gradient(#ffffee, #ffffff);
-}
-tr:nth-child(even) {
-	background: linear-gradient(#ffeeff, #ccbbff);
-}
-tr:nth-child(odd) {
-	background: linear-gradient(#ffffff, #eeeeee);
-}
-
-.searchRow {
-	padding:2px; 
-	margin-left:2px;
-	margin-right:2px;
-	border:none;
-	vertical-align:center;
-}

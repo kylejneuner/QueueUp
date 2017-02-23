@@ -21,8 +21,7 @@ function loadDoc(limit) {
 // Creates table from Spotify search object
 function genSearchTable(textObj) {
 	$("#searchResults").slideUp(0);
-	var tableText = '<table align="center" id="songTable" width="500px">\
-	<tr class="tableHead"><th></th><th>Track Title</th><th>Artist</th><th>Length</th></tr>';
+	var listText = '<ul id="searchResList" class="searchList">';
 	var numTracks = textObj.tracks.items.length;
 	if (numTracks == 0) {
 		document.getElementById("searchResults").innerHTML = "No songs found. Please try a different search.";
@@ -32,21 +31,19 @@ function genSearchTable(textObj) {
 	var i;
 	for (i = 0; i<numTracks; i++) {
 		var item = textObj.tracks.items[i];
-		tableText += '<tr id="item' + i + '"><td class="searchRow"> \
-		<img title="Preview" onclick="preview(\'' + item.preview_url + '\')" \
-		alt="Preview" src="images/play.png"></td>' + 
-		'<td>' + item.name + "</td>" +
-		"<td>" + item.artists[0].name + "</td>" +
-		"<td>" + msToLength(item.duration_ms) + "</td>" +
-		'<td class="searchRow">\
-		<img alt="Add song to playlist" title="Add song to playlist" \
-		src="images/add.png" onclick="addSong(\'' + item.uri + '\', ' + i + ', ' + item.duration_ms + ', this)"></td></tr>';
+		listText += '<li id="item' + i + '" class="searchListItem">\
+		<a href="javascript:void(0);" class="item_link"\
+		onclick="addSong(\'' + item.uri + '\', ' + i + ', ' + item.duration_ms + ', this, \''+ item.name +'\')">\
+		<span class="songTitle">' + item.name + '</span><br>\
+		&emsp;' + item.artists[0].name + '</a></li>';
 	}
-	tableText += '</table>';
+	listText += '</li>';
 	if (numTracks == 5) 
-		tableText += '<button id="load" onclick="loadDoc(10)">Load more songs</button>';
-	document.getElementById("searchResults").innerHTML = tableText;
+		listText += '<button id="load" onclick="loadDoc(10)">Load more songs</button>';
+	document.getElementById("searchResults").innerHTML = listText;
 	$("#searchResults").slideDown("fast");
+	
+	
 }
 
 // Converts ms to string (mm:ss)
@@ -66,20 +63,29 @@ function lengthToMs(length) {
 }
  
  // Adds song (name, artist, length) to current playlist and removes from search table
-function addSong(song, num, duration, r) {
+function addSong(song, num, duration, r, title) {
+	// Alert user to confirm add song
+	if (!confirm("Queue '" + title + "' up?")) return;
 	var name = "item" + num;
-	var table = document.getElementById('playlistTable');
+	// Update client-side playlist
+	var list = document.getElementById('currentPL_List');
 	document.getElementById('duration').style.visibility = "visible";
-	document.getElementById('defPL').innerHTML = "";
-	if (table.innerHTML == "No songs added.") 
-		table.innerHTML = "";
-	var tableRow = document.getElementById(name).innerHTML;
-	var string = tableRow.substring(tableRow.indexOf("</td>") + 5, tableRow.lastIndexOf("<td"));
-	table.innerHTML += string;
-	var i = r.parentNode.parentNode.rowIndex;
-    document.getElementById("songTable").deleteRow(i);
+	document.getElementById('defaultPL').innerHTML = "";
+	//if (table.innerHTML == "No songs added.") 
+		//table.innerHTML = "";
+	var listItem = document.getElementById(name).innerHTML;
+	list.innerHTML += '<li class="playlistItem">' + listItem + '</li>';
+	var elem = document.getElementById(name);
+	elem.parentNode.removeChild(elem);
 	var dur = lengthToMs(document.getElementById('durVal').innerHTML) + parseInt(duration);
 	document.getElementById('durVal').innerHTML = msToLength(dur);
+	
+	// Add to database
+	var values = {
+		'room' 	: document.getElementById('roomnum').innerHTML,
+		'song' 	: song 
+	};
+	
 }
 
 // Starts audio preview using url
