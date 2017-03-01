@@ -15,7 +15,7 @@ function loadDoc(limit) {
     };
 	var link = "https://api.spotify.com/v1/search?q=" + document.getElementById('q').value + "&type=track&market=US&limit=" + limit;
     xhttp.open("GET", link, true);
-    xhttp.send(); 
+    xhttp.send();
 }
 
 // Creates table from Spotify search object
@@ -38,12 +38,12 @@ function genSearchTable(textObj) {
 		&emsp;' + item.artists[0].name + '</a></li>';
 	}
 	listText += '</li>';
-	if (numTracks == 5) 
+	if (numTracks == 5)
 		listText += '<button id="load" onclick="loadDoc(10)">Load more songs</button>';
 	document.getElementById("searchResults").innerHTML = listText;
 	$("#searchResults").slideDown("fast");
-	
-	
+
+
 }
 
 // Converts ms to string (mm:ss)
@@ -61,7 +61,7 @@ function lengthToMs(length) {
 	var minutes = parseInt(length);
 	return minutes * 60000 + seconds * 1000;
 }
- 
+
  // Adds song (name, artist, length) to current playlist and removes from search table
 function addSong(song, num, duration, r, title) {
 	// Alert user to confirm add song
@@ -71,7 +71,7 @@ function addSong(song, num, duration, r, title) {
 	var list = document.getElementById('currentPL_List');
 	document.getElementById('duration').style.visibility = "visible";
 	document.getElementById('defaultPL').innerHTML = "";
-	//if (table.innerHTML == "No songs added.") 
+	//if (table.innerHTML == "No songs added.")
 		//table.innerHTML = "";
 	var listItem = document.getElementById(name).innerHTML;
 	list.innerHTML += '<li class="playlistItem">' + listItem + '</li>';
@@ -79,13 +79,55 @@ function addSong(song, num, duration, r, title) {
 	elem.parentNode.removeChild(elem);
 	var dur = lengthToMs(document.getElementById('durVal').innerHTML) + parseInt(duration);
 	document.getElementById('durVal').innerHTML = msToLength(dur);
-	
+
 	// Add to database
 	var values = {
 		'room' 	: document.getElementById('roomnum').innerHTML,
-		'song' 	: song 
+		'song' 	: song
 	};
-	
+  alert(song);
+  alert("calling checkifroomexists");
+  checkIfRoomExists(values);
+
+}
+
+function checkIfRoomExists(values){
+  $.ajax( { type : 'POST',
+            data : values,
+            url  : 'checkID.php',              // <=== CALL THE PHP FUNCTION HERE.
+            success: function ( data ) {
+              alert( data );               // <=== VALUE RETURNED FROM FUNCTION.
+              var idData = JSON.parse(data);
+              if(idData.isRoom==1){
+                alert("Room exists");
+                addSongToQueue(values);
+              }
+              else{
+                return 0;
+              }
+            },
+            error: function ( xhr ) {
+              alert( "error" );
+            }
+          });
+}
+
+function addSongToQueue(values){
+  $.ajax( { type : 'POST',
+            data : values,
+            url  : 'addSong.php',              // <=== CALL THE PHP FUNCTION HERE.
+            success: function ( data ) {
+              alert( data );               // <=== VALUE RETURNED FROM FUNCTION.
+              var idData = JSON.parse(data);
+              if(idData.songAdded==1){
+                alert("song added");
+              }
+              return idData.isRoom;
+            },
+            error: function ( xhr ) {
+              alert( "error" );
+            }
+          });
 }
 
 // Starts audio preview using url
