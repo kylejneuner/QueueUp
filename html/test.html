@@ -2,35 +2,62 @@
   <head>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
     <script type = "text/javascript">
-function myAjax () {
+
     var url = window.location.href;
-    alert(url);
     var name = "roomnumber";
     name = name.replace(/[\[\]]/g, "\\$&");
-    alert(name);
     var regex = new RegExp("[?&]" + "roomnumber" + "(=([^&#]*)|&|#|$)"),
     results = regex.exec(url);
     results = decodeURIComponent(results[2].replace(/\+/g, " "));
-
+    var songid = 123;
         //var roomNum = document.getElementById('roomTest').value
         var values = {
-              'room'       : results
+              'room'       : results,
+              'song'       : songid
       };
-$.ajax( { type : 'POST',
-          data : values,
-          url  : 'checkID.php',              // <=== CALL THE PHP FUNCTION HERE.
-          success: function ( data ) {
-            alert( data );               // <=== VALUE RETURNED FROM FUNCTION.
-            var idData = JSON.parse(data);
-            if(idData.isRoom==1){
-              alert("Room exists");
+
+
+function myAjax () {
+      checkIfRoomExists();
+}
+
+function checkIfRoomExists(){
+  $.ajax( { type : 'POST',
+            data : values,
+            url  : 'checkID.php',              // <=== CALL THE PHP FUNCTION HERE.
+            success: function ( data ) {
+              alert( data );               // <=== VALUE RETURNED FROM FUNCTION.
+              var idData = JSON.parse(data);
+              if(idData.isRoom==1){
+                alert("Room exists");
+                addSongToQueue();
+              }
+              else{
+                return 0;
+              }
+            },
+            error: function ( xhr ) {
+              alert( "error" );
             }
-            alert(idData.isRoom);
-          },
-          error: function ( xhr ) {
-            alert( "error" );
-          }
-        });
+          });
+}
+
+function addSongToQueue(){
+  $.ajax( { type : 'POST',
+            data : values,
+            url  : 'addSong.php',              // <=== CALL THE PHP FUNCTION HERE.
+            success: function ( data ) {
+              alert( data );               // <=== VALUE RETURNED FROM FUNCTION.
+              var idData = JSON.parse(data);
+              if(idData.songAdded==1){
+                alert("song added");
+              }
+              return idData.isRoom;
+            },
+            error: function ( xhr ) {
+              alert( "error" );
+            }
+          });
 }
     </script>
   </head>
