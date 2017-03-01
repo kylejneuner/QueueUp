@@ -13,39 +13,41 @@
 
 <script type="text/javascript">
 
-
+	var isIn = false;
 	function checkIfRoomExists(){
 		var code = document.getElementById('code').value;
-		var isIn = false;
 		var values = {
 					'room'       : code,
 				};
 		if (code.length != 5){
-			alert("Code is too short/long. Must be 5 characters long!");
+			//alert("Code is too short/long. Must be 5 characters long!");
 			return false;
 		}
-	  $.ajax( { type : 'POST',
-	            data : values,
-	            url  : 'checkID.php',              // <=== CALL THE PHP FUNCTION HERE.
-	            success: function ( data ) {
-	              //alert( data );               // <=== VALUE RETURNED FROM FUNCTION.
-	              var idData = JSON.parse(data);
-	              if(idData.isRoom==1){
-	                alert("Room exists");
-	                isIn = true;
-									return true;
-	              }
-	              else{
-									alert("Room does not exist");
-	                isIn = false;
-	              }
-	            },
-	            error: function ( xhr ) {
-	             // alert( "error" );
-								isIn = false;
+		else{
+			$.ajax( { type : 'POST',
+		            data : values,
+		            url  : 'checkID.php',              // <=== CALL THE PHP FUNCTION HERE.
+		            success: function ( data ) {
+		              //alert( data );               // <=== VALUE RETURNED FROM FUNCTION.
+		              var idData = JSON.parse(data);
+		              if(idData.isRoom==1){
+		                alert("Room exists");
+		                isIn = true;
+										return true;
+		              }
+		              else{
+										alert("Room does not exist");
+		                isIn = false;
+		              }
+		            },
+		            error: function ( xhr ) {
+		             // alert( "error" );
+									isIn = false;
 
-	            }
-	          });
+		            }
+		          });
+		}
+
 						return isIn;
 	}
 </script>
@@ -57,9 +59,9 @@
 
 		<p></p>
 
-		<form onSubmit="return checkIfRoomExists()" method="get" action="spotify.php">
+		<form onSubmit="return isIn" method="get" action="spotify.php">
 			<strong style="color:#4286f4; background-color:#e2edff; border-radius:5px; padding:3px">Room Code:</strong>
-			<input type="text" name="roomcode" id="code" maxlength="5" size="40"
+			<input type="text" onkeyup="checkIfRoomExists()" name="roomcode" id="code" maxlength="5" size="40"
 			placeholder="Enter the room code" autofocus>
 			<input type="submit" value="Join Room">
 		</form>
