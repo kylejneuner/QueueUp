@@ -56,8 +56,9 @@ public class MainRoom extends AppCompatActivity implements AsyncResponse{
         Intent enterRoom = getIntent();
         setContentView(R.layout.activity_main_room);
         final TextView roomID = (TextView)findViewById(R.id.roomID);
-        final String idNumb = enterRoom.getStringExtra("id");
-        roomID.setText(idNumb);
+        String idNumb = enterRoom.getStringExtra("id");
+        final String idNumber = idNumb.substring(1,idNumb.length()-1);
+        roomID.setText(idNumber);
 
         // Sets actions for play/pause and skip song buttons
 
@@ -67,15 +68,20 @@ public class MainRoom extends AppCompatActivity implements AsyncResponse{
             public void run()
             {
                 PlaybackState playbackState = qPlayer.getPlaybackState();
+                if(queue!=null){
+                    endQueue = false;
+                }
                 if(playbackState.isPlaying) {
 
                 }
                 else if(endQueue){
+                    System.out.println("endQueue");
                     //addSongsToQueue();
                 }else if(!isPaused){
-                    //playNextSong(queue, playedSongs);
+                    System.out.println("a");
+                    playNextSong(queue, playedSongs);
                 }
-                //System.out.println("a");
+
             }
         }, 0, 1000);
         // The array lists to keep track of the songs
@@ -100,7 +106,7 @@ public class MainRoom extends AppCompatActivity implements AsyncResponse{
         retrieve.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                addSongsToQueue(idNumb);
+                addSongsToQueue(idNumber);
             }
         });
 
@@ -108,8 +114,9 @@ public class MainRoom extends AppCompatActivity implements AsyncResponse{
 
     public void playNextSong(ArrayList<String> queue, ArrayList<String> playedSongs) {
         System.out.println((queue!=null && playedSongs!=null));
-        if(queue!=null && playedSongs!=null) {
+        if(queue!=null && playedSongs!=null && (queue.size()>0 || playedSongs.size()>0)) {
             if (queue.size() == 0 & !endQueue) {
+                // If queue is empty and the
                 qPlayer.pause(null);
                 endQueue = true;
             } else if (queue.size() == 0 & endQueue) {
@@ -120,23 +127,20 @@ public class MainRoom extends AppCompatActivity implements AsyncResponse{
                     playedSongs.remove(0);
                 }
                 endQueue = false;
-                playNextSong(queue, playedSongs);
+                //playNextSong(queue, playedSongs);
                 System.out.println("playnext");
-            } else{
-                String nextSong = queue.get(queue.size()-1);
+            } else if (queue.size() == 0 && playedSongs.size() ==0){
+                System.out.println("No songs");
+            }
+            else{
+                String nextSong = queue.get(0);
                 playedSongs.add(nextSong);
-                queue.remove(queue.size()-1);
+                queue.remove(0);
                 qPlayer.playUri(null, nextSong, 0, 0);
             }
-//  Loops if next is pressed at the end of the queue. TODO: when this is pressed, the play/pause button does not change
-// else {
-//                String nextSong = queue.get(0);
-//                playedSongs.add(nextSong);
-//                queue.remove(0);
-//                qPlayer.playUri(null, nextSong, 0, 0);
-//
-//            }
             System.out.println(queue.size() + " " + playedSongs.size());
+        }else{
+
         }
     }
 
@@ -186,18 +190,22 @@ public class MainRoom extends AppCompatActivity implements AsyncResponse{
         // Java's garbage collector and C++ RAII.
         // For more information, see the documentation on Spotify.destroyPlayer().
         Spotify.destroyPlayer(this);
+        BackgroundWorker backgroundWorker = new BackgroundWorker(this);
+        backgroundWorker.execute("clearDB");
         super.onDestroy();
     }
 
 
     @Override
     public void processFinish(String output) {
-        songsToQueue = output.substring(1, output.length()-1);
-        arraySongsToQueue = songsToQueue.split(",");
-        for(int i = arraySongsToQueue.length-1; i >=0; i--){
-            String song = arraySongsToQueue[i].substring(1, arraySongsToQueue[i].length()-1);
-            queue.add(arraySongsToQueue[i].substring(1, arraySongsToQueue[i].length()-1));
-            System.out.println(song);
+        if(output.length()>2) {
+            songsToQueue = output.substring(1, output.length() - 1);
+            arraySongsToQueue = songsToQueue.split(",");
+            for (int i = 0; i < arraySongsToQueue.length; i++) {
+                String song = arraySongsToQueue[i].substring(1, arraySongsToQueue[i].length() - 1);
+                queue.add(arraySongsToQueue[i].substring(1, arraySongsToQueue[i].length() - 1));
+                System.out.println(song);
+            }
         }
         arraySongsToQueue = null;
     }

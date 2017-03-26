@@ -74,7 +74,7 @@ public class BackgroundWorker extends AsyncTask<String, Void, String> {
                 httpURLConnection.setDoInput(true);
                 OutputStream outputStream = httpURLConnection.getOutputStream();
                 BufferedWriter bufferedWriter= new BufferedWriter(new OutputStreamWriter(outputStream, "UTF-8"));
-                String post_data = URLEncoder.encode("room_id","UTF-8")+"="+URLEncoder.encode(room_id,"UTF-8");
+                String post_data = URLEncoder.encode("roomid","UTF-8")+"="+URLEncoder.encode(room_id,"UTF-8");
                 bufferedWriter.write(post_data);
                 bufferedWriter.flush();
                 bufferedWriter.close();
@@ -90,6 +90,24 @@ public class BackgroundWorker extends AsyncTask<String, Void, String> {
                 inputStream.close();
                 httpURLConnection.disconnect();
                 return result;
+            } catch (MalformedURLException e) {
+                return "malformed";
+                //e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+                return "IOExcept";
+            }
+
+        }else if(type == "clearDB"){
+            String clearDB_url = "http://172.25.37.128/clearDB.php";
+            try {
+                URL url = new URL(clearDB_url);
+                HttpURLConnection httpURLConnection = (HttpURLConnection)url.openConnection();
+                httpURLConnection.setRequestMethod("POST");
+                httpURLConnection.setDoOutput(true);
+                httpURLConnection.setDoInput(true);
+                httpURLConnection.disconnect();
+                return null;
             } catch (MalformedURLException e) {
                 return "malformed";
                 //e.printStackTrace();
