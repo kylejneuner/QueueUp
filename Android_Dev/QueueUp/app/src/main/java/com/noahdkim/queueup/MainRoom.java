@@ -9,6 +9,7 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 
 import com.spotify.sdk.android.authentication.AuthenticationClient;
 import com.spotify.sdk.android.authentication.AuthenticationRequest;
@@ -26,11 +27,14 @@ import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class MainRoom extends AppCompatActivity {
+public class MainRoom extends AppCompatActivity implements AsyncResponse{
 
-    private boolean nextPressedEndQueue=false;
+    private boolean endQueue=false;
+    private boolean isPaused=false;
     private boolean repeat = false;
     private boolean shuffle = false;
+    private String songsToQueue;
+    private String arraySongsToQueue[];
     protected static SpotifyPlayer qPlayer = LogOn.getPlayer();
     ArrayList<String> queue;
     ArrayList<String> playedSongs;
@@ -45,20 +49,16 @@ public class MainRoom extends AppCompatActivity {
             Log.d("Queue: " ,"error");
         }
     };
-
-
-
-
-
-
     private Timer checkDatabase = new Timer();
-
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Intent enterRoom = getIntent();
         setContentView(R.layout.activity_main_room);
+        final TextView roomID = (TextView)findViewById(R.id.roomID);
+        final String idNumb = enterRoom.getStringExtra("id");
+        roomID.setText(idNumb);
+
         // Sets actions for play/pause and skip song buttons
 
         checkDatabase.schedule(new TimerTask()
@@ -67,37 +67,21 @@ public class MainRoom extends AppCompatActivity {
             public void run()
             {
                 PlaybackState playbackState = qPlayer.getPlaybackState();
-                if(playbackState.isPlaying){
+                if(playbackState.isPlaying) {
 
-                };
-                addSongsToQueue();
-                if(playbackState.isPlaying || nextPressedEndQueue){
-                }else{
-                    playNextSong(queue, playedSongs);
                 }
-                System.out.println("a");
+                else if(endQueue){
+                    //addSongsToQueue();
+                }else if(!isPaused){
+                    //playNextSong(queue, playedSongs);
+                }
+                //System.out.println("a");
             }
         }, 0, 1000);
         // The array lists to keep track of the songs
         queue = new ArrayList<String>();
         playedSongs = new ArrayList<String>();
-        String INITIAL_SONG = "spotify:track:0FE9t6xYkqWXU2ahLh6D8X";
-        String QUEUE_SONG = "spotify:track:3n3Ppam7vgaVa1iaRUc9Lp";
-        queue.add(INITIAL_SONG);
-        queue.add(QUEUE_SONG);
-
         //checkDatabase.run();
-//        while(true){
-//            addSongsToQueue();
-//            if(isPlaying) {
-//            }else{
-//                playNextSong(queue, playedSongs);
-//            }
-//
-//        }
-
-
-
         final Button pp = (Button)findViewById(R.id.PlPa);
         final Button nextSong = (Button)findViewById(R.id.nextSong);
         pp.setOnClickListener(new View.OnClickListener() {
@@ -112,30 +96,46 @@ public class MainRoom extends AppCompatActivity {
                 playNextSong(queue, playedSongs);
             }
         });
+        final Button retrieve = (Button)findViewById(R.id.Retrieve);
+        retrieve.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                addSongsToQueue(idNumb);
+            }
+        });
 
     }
 
     public void playNextSong(ArrayList<String> queue, ArrayList<String> playedSongs) {
-        if(queue.size()+playedSongs.size()!=0) {
-            if (queue.size() == 0 & !nextPressedEndQueue) {
+        System.out.println((queue!=null && playedSongs!=null));
+        if(queue!=null && playedSongs!=null) {
+            if (queue.size() == 0 & !endQueue) {
                 qPlayer.pause(null);
-                nextPressedEndQueue = true;
-            } else if (queue.size() == 0 & nextPressedEndQueue) {
+                endQueue = true;
+            } else if (queue.size() == 0 & endQueue) {
                 int count = playedSongs.size();
                 for (int i = 0; i <= playedSongs.size(); i++) {
                     String song = playedSongs.get(0);
                     queue.add(song);
                     playedSongs.remove(0);
                 }
-                nextPressedEndQueue = false;
+                endQueue = false;
                 playNextSong(queue, playedSongs);
-            } else {
-                String nextSong = queue.get(0);
+                System.out.println("playnext");
+            } else{
+                String nextSong = queue.get(queue.size()-1);
                 playedSongs.add(nextSong);
-                queue.remove(0);
+                queue.remove(queue.size()-1);
                 qPlayer.playUri(null, nextSong, 0, 0);
-
             }
+//  Loops if next is pressed at the end of the queue. TODO: when this is pressed, the play/pause button does not change
+// else {
+//                String nextSong = queue.get(0);
+//                playedSongs.add(nextSong);
+//                queue.remove(0);
+//                qPlayer.playUri(null, nextSong, 0, 0);
+//
+//            }
             System.out.println(queue.size() + " " + playedSongs.size());
         }
     }
@@ -149,9 +149,13 @@ public class MainRoom extends AppCompatActivity {
         qPlayer.playUri(null, INITIAL_SONG, 0, 0);
     }
 
-    public void addSongsToQueue(){
+    public void addSongsToQueue(String idNumb){
         // TODO: Every 10 seconds or so, search the database and add the songs to the queue. Loop continually
-
+        BackgroundWorker backgroundWorker = new BackgroundWorker(this);
+        backgroundWorker.delegate= this;
+        String type = "addToQueue";
+        backgroundWorker.execute(type, idNumb);
+        System.out.println("addSongsToQueue");
         //qPlayer.queue(null, QUEUE_SONG);
     }
 
@@ -160,7 +164,7 @@ public class MainRoom extends AppCompatActivity {
     }
 
     public void playOrPause(Player qPlayer, Button pp) {
-        if (!nextPressedEndQueue) {
+        if (!endQueue) {
             if (!qPlayer.getPlaybackState().isPlaying) {
                 qPlayer.resume(null);
                 pp.setText("Pause");
@@ -168,18 +172,12 @@ public class MainRoom extends AppCompatActivity {
                 qPlayer.pause(null);
                 pp.setText("Resume");
             }
-
+            isPaused = !isPaused;
         }
 
 
-    }
-
-    public void skipSong(Player qPlayer){
-
 
     }
-
-
     @Override
     protected void onDestroy() {
         // *** ULTRA-IMPORTANT ***
@@ -192,5 +190,15 @@ public class MainRoom extends AppCompatActivity {
     }
 
 
-
+    @Override
+    public void processFinish(String output) {
+        songsToQueue = output.substring(1, output.length()-1);
+        arraySongsToQueue = songsToQueue.split(",");
+        for(int i = arraySongsToQueue.length-1; i >=0; i--){
+            String song = arraySongsToQueue[i].substring(1, arraySongsToQueue[i].length()-1);
+            queue.add(arraySongsToQueue[i].substring(1, arraySongsToQueue[i].length()-1));
+            System.out.println(song);
+        }
+        arraySongsToQueue = null;
+    }
 }

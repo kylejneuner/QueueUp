@@ -28,7 +28,7 @@
 		            data : values,
 		            url  : 'checkID.php',              // <=== CALL THE PHP FUNCTION HERE.
 		            success: function ( data ) {
-		              //alert( data );               // <=== VALUE RETURNED FROM FUNCTION.
+		              alert( data );               // <=== VALUE RETURNED FROM FUNCTION.
 		              var idData = JSON.parse(data);
 		              if(idData.isRoom==1){
 		                alert("Room exists");

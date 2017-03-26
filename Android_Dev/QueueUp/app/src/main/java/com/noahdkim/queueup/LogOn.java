@@ -18,7 +18,7 @@ import com.spotify.sdk.android.player.PlayerEvent;
 import com.spotify.sdk.android.player.Spotify;
 import com.spotify.sdk.android.player.SpotifyPlayer;
 
-public class LogOn extends AppCompatActivity implements SpotifyPlayer.NotificationCallback, ConnectionStateCallback{
+public class LogOn extends AppCompatActivity implements SpotifyPlayer.NotificationCallback, ConnectionStateCallback, AsyncResponse{
 
     // TODO: Replace with your client ID
     private static final String CLIENT_ID = "d6e28e8ad47847239eaeb2916a7772cd";
@@ -53,9 +53,10 @@ public class LogOn extends AppCompatActivity implements SpotifyPlayer.Notificati
             @Override
             public void onClick(View view) {
                 // TODO: Link button press with php so you enter a unique room
+                CreateID(view);
                 Log.d("LogOn", "create room button pressed");
-                Intent enterRoom = new Intent(LogOn.this, MainRoom.class);
-                startActivity(enterRoom);
+//                Intent enterRoom = new Intent(LogOn.this, MainRoom.class);
+//                startActivity(enterRoom);
 
 
             }
@@ -154,5 +155,20 @@ public class LogOn extends AppCompatActivity implements SpotifyPlayer.Notificati
         return qPlayer;
     }
 
+    public void CreateID(View view){
+        BackgroundWorker backgroundWorker = new BackgroundWorker(this);
+        backgroundWorker.delegate= this;
+        String type = "createID";
+        backgroundWorker.execute(type);
+        System.out.println("HELLO");
+    }
 
+    @Override
+    public void processFinish(String output) {
+
+        System.out.print(output+"processFinish");
+        Intent enterRoom = new Intent(LogOn.this, MainRoom.class);
+        enterRoom.putExtra("id", output);
+        startActivity(enterRoom);
+    }
 }
